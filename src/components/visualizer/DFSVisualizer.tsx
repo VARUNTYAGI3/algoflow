@@ -2,10 +2,10 @@
 
 import { motion } from "framer-motion";
 
-import { BFSStep } from "@/utils/algorithms/bfs";
+import { DFSStep } from "@/utils/algorithms/dfs";
 
-interface BFSVisualizerProps {
-  step?: BFSStep;
+interface DFSVisualizerProps {
+  step?: DFSStep;
 }
 
 const nodes = [
@@ -30,9 +30,10 @@ const edges = [
   ["C", "F"],
 ];
 
-export default function BFSVisualizer({
+export default function DFSVisualizer({
   step,
-}: BFSVisualizerProps) {
+}: DFSVisualizerProps) {
+
   return (
     <div
       className="
@@ -47,15 +48,15 @@ export default function BFSVisualizer({
       <div className="mb-10">
 
         <h2 className="text-3xl font-bold">
-          BFS Traversal
+          DFS Traversal
         </h2>
 
         <p className="text-zinc-400 mt-2">
-          Queue-based graph exploration
+          Stack-based graph exploration
         </p>
       </div>
 
-      {/* GRAPH AREA */}
+      {/* GRAPH */}
       <div
         className="
           relative
@@ -69,13 +70,10 @@ export default function BFSVisualizer({
         "
       >
 
-        {/* EDGES */}
         <svg className="absolute inset-0 w-full h-full">
 
           {edges.map(([from, to], index) => {
-            const isActiveEdge =
-              step?.currentNode === from &&
-              step?.queue.includes(to);
+
             const fromNode = nodes.find(
               (n) => n.id === from
             );
@@ -97,25 +95,14 @@ export default function BFSVisualizer({
                 x2={toNode.x + 45}
                 y2={toNode.y + 45}
 
-                stroke={
-                  isActiveEdge
-                    ? "#a855f7"
-                    : "#52525b"
-                }
-
-                strokeWidth={
-                  isActiveEdge ? 6 : 4
-                }
-
-                opacity={
-                  isActiveEdge ? 1 : 0.6
-                }
+                stroke="#52525b"
+                strokeWidth="4"
+                opacity="0.7"
               />
             );
           })}
         </svg>
 
-        {/* NODES */}
         {nodes.map((node) => {
 
           const isCurrent =
@@ -132,18 +119,6 @@ export default function BFSVisualizer({
                 scale: isCurrent
                   ? [1, 1.15, 1]
                   : 1,
-
-                boxShadow: isCurrent
-                  ? [
-                    "0 0 10px rgba(168,85,247,0.3)",
-
-                    "0 0 40px rgba(168,85,247,0.9)",
-
-                    "0 0 10px rgba(168,85,247,0.3)",
-                  ]
-                  : isVisited
-                    ? "0 0 25px rgba(34,197,94,0.5)"
-                    : "none",
               }}
 
               transition={{
@@ -173,16 +148,16 @@ export default function BFSVisualizer({
                 height: 90,
 
                 background: isCurrent
-                  ? "#a855f7"
+                  ? "#f97316"
                   : isVisited
-                    ? "#22c55e"
-                    : "#18181b",
+                  ? "#22c55e"
+                  : "#18181b",
 
                 borderColor: isCurrent
-                  ? "#d8b4fe"
+                  ? "#fdba74"
                   : isVisited
-                    ? "#86efac"
-                    : "#3f3f46",
+                  ? "#86efac"
+                  : "#3f3f46",
               }}
             >
               {node.id}
@@ -191,38 +166,26 @@ export default function BFSVisualizer({
         })}
       </div>
 
-      {/* BOTTOM PANELS */}
+      {/* STACK + TRAVERSAL */}
       <div className="grid md:grid-cols-2 gap-6 mt-8">
 
-        {/* QUEUE */}
+        {/* STACK */}
         <div
           className="
             rounded-3xl
-            border border-blue-500/20
-            bg-blue-500/5
+            border border-orange-500/20
+            bg-orange-500/5
             p-6
           "
         >
-          <div className="flex items-center justify-between mb-5">
 
-            <h3 className="text-xl font-semibold text-blue-400">
-              Queue
-            </h3>
-
-            <div className="text-sm text-blue-300">
-              FIFO
-            </div>
-          </div>
+          <h3 className="text-xl font-semibold text-orange-400 mb-5">
+            Stack
+          </h3>
 
           <div className="flex gap-3 flex-wrap">
 
-            {step?.queue.length === 0 && (
-              <p className="text-zinc-500">
-                Queue Empty
-              </p>
-            )}
-
-            {step?.queue.map((node, index) => (
+            {step?.stack.map((node, index) => (
               <motion.div
                 key={index}
 
@@ -237,8 +200,8 @@ export default function BFSVisualizer({
                 className="
                   w-14 h-14
                   rounded-2xl
-                  bg-blue-500/20
-                  border border-blue-400/20
+                  bg-orange-500/20
+                  border border-orange-400/20
                   flex items-center justify-center
                   font-bold
                   text-lg
@@ -259,16 +222,10 @@ export default function BFSVisualizer({
             p-6
           "
         >
-          <div className="flex items-center justify-between mb-5">
 
-            <h3 className="text-xl font-semibold text-green-400">
-              Traversal Order
-            </h3>
-
-            <div className="text-sm text-green-300">
-              BFS
-            </div>
-          </div>
+          <h3 className="text-xl font-semibold text-green-400 mb-5">
+            Traversal Order
+          </h3>
 
           <div className="flex gap-3 flex-wrap">
 

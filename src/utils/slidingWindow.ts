@@ -46,7 +46,6 @@ export function slidingWindow(nums: number[], target: number): Step[] {
         codeLine: 6,
         operations
       });
-      });
 
       left++;
 

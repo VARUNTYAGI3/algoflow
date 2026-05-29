@@ -14,37 +14,112 @@ import ComparePanel from "@/components/visualizer/ComparePanel";
 import CodePanel from "@/components/visualizer/CodePanel";
 import AlgorithmSelector from "@/components/visualizer/AlgorithmSelector";
 import ControlPanel from "@/components/visualizer/ControlPanel";
+
 import { AlgorithmType } from "@/types/algorithms";
+
 import BFSVisualizer from "@/components/visualizer/BFSVisualizer";
+import DFSVisualizer from "@/components/visualizer/DFSVisualizer";
+import TraversalInsights from "@/components/visualizer/TraversalInsights";
+import BinarySearchVisualizer from "@/components/visualizer/BinarySearchVisualizer";
+
+import Sidebar from "@/components/layout/Sidebar";
+import DashboardHeader from "@/components/layout/DashboardHeader";
+import QuickAccess from "@/components/layout/QuickAccess";
+
+import WorkspaceTabs, {
+  WorkspaceTab,
+} from "@/components/layout/WorkspaceTabs";
+
+import AnalyticsWorkspace from "@/components/workspace/AnalyticsWorkspace";
+import CodeWorkspace from "@/components/workspace/CodeWorkspace";
 
 import {
   bfsTraversal,
   sampleGraph,
   BFSStep,
 } from "@/utils/algorithms/bfs";
+
+import {
+  dfsTraversal,
+  DFSStep,
+} from "@/utils/algorithms/dfs";
+
+import {
+  binarySearchSteps,
+  BinarySearchStep,
+} from "@/utils/algorithms/binarySearch";
+import MergeSortVisualizer from "@/components/visualizer/MergeSortVisualizer";
+
+import {
+  mergeSortSteps,
+  MergeSortStep,
+} from "@/utils/algorithms/mergeSort";
 export default function Visualizer() {
-  const [steps, setSteps] = useState<Step[]>([]);
-  const [bfsSteps, setBfsSteps] = useState<
-    BFSStep[]
+
+  // STATES
+  const [steps, setSteps] =
+    useState<Step[]>([]);
+
+  const [bfsSteps, setBfsSteps] =
+    useState<BFSStep[]>([]);
+
+  const [dfsSteps, setDfsSteps] =
+    useState<DFSStep[]>([]);
+
+  const [
+    binarySearchSimulation,
+    setBinarySearchSimulation,
+  ] = useState<
+    BinarySearchStep[]
   >([]);
-  const [stepIndex, setStepIndex] = useState(0);
+  const [
+    mergeSortSimulation,
+    setMergeSortSimulation,
+  ] = useState<
+    MergeSortStep[]
+  >([]);
+  const [stepIndex, setStepIndex] =
+    useState(0);
 
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] =
+    useState(false);
 
-  const [speed, setSpeed] = useState(800);
+  const [speed, setSpeed] =
+    useState(800);
 
-  const [inputArray, setInputArray] = useState("");
+  const [activeTab, setActiveTab] =
+    useState<WorkspaceTab>(
+      "visualization"
+    );
 
-  const [inputTarget, setInputTarget] = useState("");
+  const [selectedAlgorithm,
+    setSelectedAlgorithm] =
+    useState<AlgorithmType>(
+      "sliding-window"
+    );
 
-  const [compareMode, setCompareMode] = useState(false);
+  const [inputArray, setInputArray] =
+    useState("");
 
+  const [inputTarget, setInputTarget] =
+    useState("");
+
+  const [compareMode, setCompareMode] =
+    useState(false);
+
+  const [bfsStartNode,
+    setBfsStartNode] =
+    useState("A");
+
+  // INPUTS
   const nums = inputArray
     ? inputArray.split(",").map(Number)
     : [];
 
-  const target = Number(inputTarget);
-  //{Run Simulation Handler}
+  const target =
+    Number(inputTarget);
+
+  // RUN SIMULATION
   const runSimulation = () => {
 
     // SLIDING WINDOW
@@ -52,6 +127,7 @@ export default function Visualizer() {
       selectedAlgorithm ===
       "sliding-window"
     ) {
+
       const result = slidingWindow(
         nums,
         target
@@ -65,10 +141,13 @@ export default function Visualizer() {
     }
 
     // BFS
-    if (selectedAlgorithm === "bfs") {
+    if (
+      selectedAlgorithm === "bfs"
+    ) {
+
       const result = bfsTraversal(
         sampleGraph,
-        "A"
+        bfsStartNode
       );
 
       setBfsSteps(result);
@@ -77,21 +156,243 @@ export default function Visualizer() {
 
       setIsPlaying(false);
     }
+
+    // DFS
+    if (
+      selectedAlgorithm === "dfs"
+    ) {
+
+      const result = dfsTraversal(
+        sampleGraph,
+        bfsStartNode
+      );
+
+      setDfsSteps(result);
+
+      setStepIndex(0);
+
+      setIsPlaying(false);
+    }
+
+    // BINARY SEARCH
+    if (
+      selectedAlgorithm ===
+      "binary-search"
+    ) {
+
+      const sortedNums =
+        inputArray
+          .split(",")
+
+          .map((n) =>
+            Number(n.trim())
+          )
+
+          .sort((a, b) => a - b);
+
+      const result =
+        binarySearchSteps(
+          sortedNums,
+          target
+        );
+
+      setBinarySearchSimulation(
+        result
+      );
+
+      setStepIndex(0);
+
+      setIsPlaying(false);
+    }
+
+    if (
+      selectedAlgorithm ===
+      "merge-sort"
+    ) {
+
+      const nums =
+        inputArray
+          .split(",")
+
+          .map((n) =>
+            Number(n.trim())
+          );
+
+      const result =
+        mergeSortSteps(nums);
+
+      setMergeSortSimulation(
+        result
+      );
+
+      setStepIndex(0);
+
+      setIsPlaying(false);
+    }
   };
 
-  const [selectedAlgorithm, setSelectedAlgorithm] =
-    useState<AlgorithmType>(
-      "sliding-window"
-    );
-  const step =
-    selectedAlgorithm === "sliding-window"
-      ? steps[stepIndex]
-      : bfsSteps[stepIndex];
+  // CURRENT STEP
+  let step;
 
-  const totalSteps =
-    selectedAlgorithm === "sliding-window"
-      ? steps.length
-      : bfsSteps.length;
+  if (
+    selectedAlgorithm ===
+    "sliding-window"
+  ) {
+
+    step = steps[stepIndex];
+
+  } else if (
+    selectedAlgorithm === "bfs"
+  ) {
+
+    step = bfsSteps[stepIndex];
+
+  } else if (
+    selectedAlgorithm === "dfs"
+  ) {
+
+    step = dfsSteps[stepIndex];
+
+  } else if (
+    selectedAlgorithm ===
+    "binary-search"
+  ) {
+
+    step =
+      binarySearchSimulation[
+      stepIndex
+      ];
+  }
+  else if (
+    selectedAlgorithm ===
+    "merge-sort"
+  ) {
+
+    step =
+      mergeSortSimulation[
+      stepIndex
+      ];
+  }
+
+  // TOTAL STEPS
+  let totalSteps = 0;
+
+  if (
+    selectedAlgorithm ===
+    "sliding-window"
+  ) {
+
+    totalSteps = steps.length;
+
+  } else if (
+    selectedAlgorithm === "bfs"
+  ) {
+
+    totalSteps = bfsSteps.length;
+
+  } else if (
+    selectedAlgorithm === "dfs"
+  ) {
+
+    totalSteps = dfsSteps.length;
+
+  } else if (
+    selectedAlgorithm ===
+    "binary-search"
+  ) {
+
+    totalSteps =
+      binarySearchSimulation.length;
+  }
+  else if (
+    selectedAlgorithm ===
+    "merge-sort"
+  ) {
+
+    totalSteps =
+      mergeSortSimulation.length;
+  }
+
+  // TITLE
+  const algorithmTitle =
+    selectedAlgorithm ===
+      "sliding-window"
+
+      ? "Sliding Window"
+
+      : selectedAlgorithm === "bfs"
+
+        ? "Breadth First Search"
+
+        : selectedAlgorithm === "dfs"
+
+          ? "Depth First Search"
+
+          : selectedAlgorithm ===
+            "binary-search"
+
+            ? "Binary Search"
+
+            : "Merge Sort";
+
+  // CODE SNIPPETS
+  const codeSnippets:
+    Record<
+      AlgorithmType,
+      string[]
+    > = {
+
+    "sliding-window": [
+      "let left = 0;",
+      "let sum = 0;",
+      "for (let right = 0; right < nums.length; right++) {",
+      "sum += nums[right];",
+      "while (sum >= target) {",
+      "sum -= nums[left];",
+      "left++;",
+      "}",
+      "}",
+    ],
+
+    bfs: [
+      "const queue = [start];",
+      "const visited = new Set();",
+      "while (queue.length > 0) {",
+      "const node = queue.shift();",
+      "if (visited.has(node)) continue;",
+      "visited.add(node);",
+      "for (const neighbor of graph[node]) {",
+      "queue.push(neighbor);",
+      "}",
+      "}",
+    ],
+
+    dfs: [
+      "const stack = [start];",
+      "const visited = new Set();",
+      "while (stack.length > 0) {",
+      "const node = stack.pop();",
+      "if (visited.has(node)) continue;",
+      "visited.add(node);",
+      "for (const neighbor of graph[node]) {",
+      "stack.push(neighbor);",
+      "}",
+      "}",
+    ],
+
+    "binary-search": [
+      "let left = 0;",
+      "let right = nums.length - 1;",
+      "while (left <= right) {",
+      "const mid = Math.floor((left + right) / 2);",
+      "if (nums[mid] === target) return mid;",
+      "if (nums[mid] < target) left = mid + 1;",
+      "else right = mid - 1;",
+      "}",
+    ],
+  };
+
+  // EXPLANATION
   const previousStep =
     stepIndex > 0
       ? steps[stepIndex - 1]
@@ -105,354 +406,566 @@ export default function Visualizer() {
       target
     );
 
+  // AUTOPLAY
   useEffect(() => {
+
     if (!isPlaying) return;
 
+    if (totalSteps === 0) return;
+
     const interval = setInterval(() => {
+
       setStepIndex((prev) => {
-        if (prev >= steps.length - 1) {
+
+        if (
+          prev >= totalSteps - 1
+        ) {
+
           setIsPlaying(false);
+
           return prev;
         }
 
         return prev + 1;
       });
+
     }, speed);
 
-    return () => clearInterval(interval);
-  }, [isPlaying, steps, speed]);
+    return () =>
+      clearInterval(interval);
+
+  }, [
+    isPlaying,
+    speed,
+    totalSteps,
+  ]);
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <div className="max-w-[1600px] mx-auto px-6 py-6">
+    <div className="min-h-screen bg-black text-white flex">
 
-        {/* HEADER */}
-        <div className="mb-10">
-          <h1 className="text-5xl font-bold tracking-tight">
-            AlgoFlow 🚀
-          </h1>
+      {/* SIDEBAR */}
+      <Sidebar
+        selectedAlgorithm={
+          selectedAlgorithm
+        }
+        setSelectedAlgorithm={
+          setSelectedAlgorithm
+        }
+      />
 
-          <p className="text-zinc-400 mt-3 text-lg">
-            DSA Execution Simulator & Pattern Visualizer
-          </p>
-        </div>
+      {/* MAIN */}
+      <div className="flex-1 overflow-auto">
 
-        {/* ALGORITHM SELECTOR */}
-        <AlgorithmSelector
-          selectedAlgorithm={selectedAlgorithm}
-          setSelectedAlgorithm={
-            setSelectedAlgorithm
-          }
-        />
+        <div className="max-w-[1600px] mx-auto px-6 py-6">
 
-        {/* CONTROL PANEL */}
-        <ControlPanel
-          inputArray={inputArray}
-          setInputArray={setInputArray}
-          inputTarget={inputTarget}
-          setInputTarget={setInputTarget}
-          compareMode={compareMode}
-          setCompareMode={setCompareMode}
-          runSimulation={runSimulation}
-        />
+          <DashboardHeader />
 
-        {/* MAIN GRID */}
-        <div
-          className="
-          grid
-          grid-cols-1
-          xl:grid-cols-[minmax(0,1fr)_420px]
-          gap-6
-          items-start
-        "
-        >
+          <QuickAccess
+            selectedAlgorithm={
+              selectedAlgorithm
+            }
+            setSelectedAlgorithm={
+              setSelectedAlgorithm
+            }
+          />
 
-          {/* LEFT SIDE */}
-          <div className="space-y-6">
+          <WorkspaceTabs
+            activeTab={activeTab}
+            setActiveTab={
+              setActiveTab
+            }
+          />
 
-            {/* VISUALIZER */}
-            <div
-              className="
-              rounded-3xl
-              border border-white/10
-              bg-[#0b1120]
-              p-6
-              shadow-2xl
-            "
-            >
+          {/* HEADER */}
+          <div className="mb-10">
 
-              {/* TOP BAR */}
-              <div className="flex items-center justify-between mb-6">
+            <h1 className="text-5xl font-bold tracking-tight">
+              AlgoFlow 🚀
+            </h1>
 
-                <h2 className="text-2xl font-semibold">
-                  Visualization
-                </h2>
+            <p className="text-zinc-400 mt-3 text-lg">
+              DSA Execution Simulator
+            </p>
+          </div>
 
-                <div className="flex gap-3">
+          {/* SELECTOR */}
+          <AlgorithmSelector
+            selectedAlgorithm={
+              selectedAlgorithm
+            }
+            setSelectedAlgorithm={
+              setSelectedAlgorithm
+            }
+          />
 
-                  <button
-                    onClick={() =>
-                      setStepIndex((prev) =>
-                        Math.max(prev - 1, 0)
-                      )
-                    }
+          {/* CONTROLS */}
+          <ControlPanel
+            selectedAlgorithm={
+              selectedAlgorithm
+            }
+            bfsStartNode={
+              bfsStartNode
+            }
+            setBfsStartNode={
+              setBfsStartNode
+            }
+            inputArray={inputArray}
+            setInputArray={
+              setInputArray
+            }
+            inputTarget={
+              inputTarget
+            }
+            setInputTarget={
+              setInputTarget
+            }
+            compareMode={
+              compareMode
+            }
+            setCompareMode={
+              setCompareMode
+            }
+            runSimulation={
+              runSimulation
+            }
+          />
+
+          {/* VISUALIZATION */}
+          {activeTab ===
+            "visualization" && (
+
+              <div
+                className="
+                  grid
+                  grid-cols-1
+                  xl:grid-cols-[minmax(0,1fr)_420px]
+                  gap-6
+                  items-start
+                "
+              >
+
+                {/* LEFT */}
+                <div className="space-y-6">
+
+                  <div
                     className="
-                    bg-zinc-800
-                    hover:bg-zinc-700
-                    px-5 py-2
-                    rounded-xl
-                    transition
-                  "
-                  >
-                    Prev
-                  </button>
-
-                  <button
-                    onClick={() =>
-                      setIsPlaying(!isPlaying)
-                    }
-                    className="
-                    bg-gradient-to-r
-                    from-purple-600
-                    to-pink-500
-                    px-5 py-2
-                    rounded-xl
-                    hover:scale-105
-                    transition
-                  "
-                  >
-                    {isPlaying ? "Pause" : "Play"}
-                  </button>
-
-                  <button
-                    onClick={() =>
-                      setStepIndex((prev) =>
-                        Math.min(
-                          prev + 1,
-                          totalSteps - 1
-                        )
-                      )
-                    }
-                    className="
-                    bg-zinc-800
-                    hover:bg-zinc-700
-                    px-5 py-2
-                    rounded-xl
-                    transition
-                  "
-                  >
-                    Next
-                  </button>
-                </div>
-              </div>
-
-              {/* BFS VISUALIZER */}
-              {selectedAlgorithm === "bfs" && (
-                <BFSVisualizer
-                  step={bfsSteps[stepIndex]}
-                />
-              )}
-
-              {/* SLIDING WINDOW */}
-              {selectedAlgorithm ===
-                "sliding-window" && (
-                  <>
-                    {/* STEP INFO */}
-                    {step && (
-                      <div
-                        className="
-                      mb-8
-                      grid grid-cols-2 md:grid-cols-4 gap-4
+                      rounded-3xl
+                      border border-white/10
+                      bg-[#0b1120]
+                      p-6
                     "
-                      >
-                        <div className="bg-black/30 rounded-2xl p-4 border border-white/5">
-                          <p className="text-zinc-400 text-sm">
-                            Left Pointer
-                          </p>
+                  >
 
-                          <h3 className="text-2xl font-bold text-orange-400">
-                            {(step as Step).left}
-                          </h3>
-                        </div>
+                    {/* TOP BAR */}
+                    <div className="flex items-center justify-between mb-6">
 
-                        <div className="bg-black/30 rounded-2xl p-4 border border-white/5">
-                          <p className="text-zinc-400 text-sm">
-                            Right Pointer
-                          </p>
+                      <h2 className="text-2xl font-semibold">
+                        Visualization
+                      </h2>
 
-                          <h3 className="text-2xl font-bold text-blue-400">
-                            {(step as Step).right}
-                          </h3>
-                        </div>
+                      <div className="flex gap-3">
 
-                        <div className="bg-black/30 rounded-2xl p-4 border border-white/5">
-                          <p className="text-zinc-400 text-sm">
-                            Window Sum
-                          </p>
-
-                          <h3 className="text-2xl font-bold text-green-400">
-                            {(step as Step).sum}
-                          </h3>
-                        </div>
-
-                        <div className="bg-black/30 rounded-2xl p-4 border border-white/5">
-                          <p className="text-zinc-400 text-sm">
-                            Operations
-                          </p>
-
-                          <h3 className="text-2xl font-bold text-pink-400">
-                            {(step as Step).operations}
-                          </h3>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* POINTERS */}
-                    {step && (
-                      <div className="flex gap-4 mb-3">
-                        {nums.map((_, i) => (
-                          <div
-                            key={i}
-                            className="w-16 flex justify-center"
-                          >
-                            {i ===
-                              (step as Step).left && (
-                                <motion.div
-                                  animate={{
-                                    y: [0, 6, 0],
-                                  }}
-                                  transition={{
-                                    repeat: Infinity,
-                                    duration: 1,
-                                  }}
-                                  className="text-orange-400 text-sm"
-                                >
-                                  ↓ left
-                                </motion.div>
-                              )}
-
-                            {i ===
-                              (step as Step).right && (
-                                <motion.div
-                                  animate={{
-                                    y: [0, 6, 0],
-                                  }}
-                                  transition={{
-                                    repeat: Infinity,
-                                    duration: 1,
-                                  }}
-                                  className="text-blue-400 text-sm"
-                                >
-                                  ↓ right
-                                </motion.div>
-                              )}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* ARRAY */}
-                    <div className="flex flex-wrap gap-4">
-                      {nums.map((val, i) => (
-                        <motion.div
-                          key={i}
-                          animate={{
-                            scale:
-                              step &&
-                                i >=
-                                (step as Step).left &&
-                                i <=
-                                (step as Step).right
-                                ? 1.15
-                                : 1,
-
-                            backgroundColor:
-                              step &&
-                                i >=
-                                (step as Step).left &&
-                                i <=
-                                (step as Step).right
-                                ? "#22c55e"
-                                : "#1f2937",
-                          }}
-                          transition={{
-                            duration: 0.3,
-                          }}
+                        <button
+                          onClick={() =>
+                            setStepIndex((prev) =>
+                              Math.max(
+                                prev - 1,
+                                0
+                              )
+                            )
+                          }
                           className="
-                        w-16 h-16
-                        rounded-2xl
-                        flex items-center justify-center
-                        font-bold text-lg
-                        border border-white/10
-                        shadow-lg
-                      "
+                            bg-zinc-800
+                            hover:bg-zinc-700
+                            px-5 py-2
+                            rounded-xl
+                          "
                         >
-                          {val}
-                        </motion.div>
-                      ))}
+                          Prev
+                        </button>
+
+                        <button
+                          onClick={() =>
+                            setIsPlaying(
+                              !isPlaying
+                            )
+                          }
+                          className="
+                            bg-gradient-to-r
+                            from-purple-600
+                            to-pink-500
+                            px-5 py-2
+                            rounded-xl
+                          "
+                        >
+                          {isPlaying
+                            ? "Pause"
+                            : "Play"}
+                        </button>
+
+                        <button
+                          onClick={() =>
+                            setStepIndex((prev) =>
+                              Math.min(
+                                prev + 1,
+                                totalSteps - 1
+                              )
+                            )
+                          }
+                          className="
+                            bg-zinc-800
+                            hover:bg-zinc-700
+                            px-5 py-2
+                            rounded-xl
+                          "
+                        >
+                          Next
+                        </button>
+                      </div>
                     </div>
 
-                    {/* INSIGHTS */}
-                    {step && explanation && (
-                      <InsightsPanel
-                        step={step as Step}
-                        nums={nums}
-                        explanation={explanation}
+                    {/* BFS */}
+                    {selectedAlgorithm === "bfs" && (
+                      <BFSVisualizer
+                        step={
+                          bfsSteps[
+                          stepIndex
+                          ]
+                        }
+                      />
+                    )}
+
+                    {/* DFS */}
+                    {selectedAlgorithm === "dfs" && (
+                      <DFSVisualizer
+                        step={
+                          dfsSteps[
+                          stepIndex
+                          ]
+                        }
+                      />
+                    )}
+
+                    {/* BINARY SEARCH */}
+                    {selectedAlgorithm ===
+                      "binary-search" && (
+
+                        <BinarySearchVisualizer
+                          step={
+                            binarySearchSimulation[
+                            stepIndex
+                            ]
+                          }
+
+                          array={
+                            inputArray
+                              .split(",")
+
+                              .map((n) =>
+                                Number(
+                                  n.trim()
+                                )
+                              )
+
+                              .sort(
+                                (a, b) =>
+                                  a - b
+                              )
+                          }
+                        />
+
+                      )}
+                    {selectedAlgorithm ===
+                      "merge-sort" && (
+
+                        <MergeSortVisualizer
+                          step={
+                            mergeSortSimulation[
+                            stepIndex
+                            ]
+                          }
+                        />
+                      )}
+
+                    {/* SLIDING WINDOW */}
+                    {selectedAlgorithm ===
+                      "sliding-window" && (
+                        <>
+                          <div className="flex flex-wrap gap-5 mt-8">
+
+                            {nums.map((val, i) => {
+
+                              const isInsideWindow =
+                                step &&
+                                i >= (step as Step).left &&
+                                i <= (step as Step).right;
+
+                              const isLeft =
+                                step &&
+                                i === (step as Step).left;
+
+                              const isRight =
+                                step &&
+                                i === (step as Step).right;
+
+                              return (
+
+                                <div
+                                  key={i}
+                                  className="
+          flex
+          flex-col
+          items-center
+          relative
+        "
+                                >
+
+                                  {/* POINTER LABELS */}
+                                  <div className="h-10 flex flex-col items-center justify-end">
+
+                                    {isLeft && (
+                                      <motion.p
+
+                                        initial={{
+                                          opacity: 0,
+                                          y: -10,
+                                        }}
+
+                                        animate={{
+                                          opacity: 1,
+                                          y: 0,
+                                        }}
+
+                                        className="
+                text-orange-400
+                text-sm
+                font-semibold
+              "
+                                      >
+                                        left
+                                      </motion.p>
+                                    )}
+
+                                    {isRight && (
+                                      <motion.p
+
+                                        initial={{
+                                          opacity: 0,
+                                          y: -10,
+                                        }}
+
+                                        animate={{
+                                          opacity: 1,
+                                          y: 0,
+                                        }}
+
+                                        className="
+                text-blue-400
+                text-sm
+                font-semibold
+              "
+                                      >
+                                        right
+                                      </motion.p>
+                                    )}
+                                  </div>
+
+                                  {/* ARRAY CELL */}
+                                  <motion.div
+
+                                    animate={{
+                                      scale:
+                                        isInsideWindow
+                                          ? 1.12
+                                          : 1,
+
+                                      boxShadow:
+                                        isInsideWindow
+                                          ? "0px 0px 30px rgba(168,85,247,0.55)"
+                                          : "0px 0px 0px rgba(0,0,0,0)",
+                                    }}
+
+                                    transition={{
+                                      duration: 0.35,
+                                    }}
+
+                                    className={`
+            w-20
+            h-20
+            rounded-2xl
+            flex
+            items-center
+            justify-center
+            text-2xl
+            font-bold
+            border
+            transition-all
+
+            ${isInsideWindow
+                                        ? `
+                  bg-gradient-to-br
+                  from-purple-600
+                  to-pink-500
+                  border-purple-300
+                `
+                                        : `
+                  bg-zinc-900
+                  border-white/10
+                `
+                                      }
+          `}
+                                  >
+                                    {val}
+                                  </motion.div>
+
+                                  {/* INDEX */}
+                                  <p className="text-zinc-500 mt-3 text-sm">
+                                    {i}
+                                  </p>
+                                </div>
+                              );
+                            })}
+                          </div>
+
+                          {step &&
+                            explanation && (
+                              <InsightsPanel
+                                step={
+                                  step as Step
+                                }
+                                nums={nums}
+                                explanation={
+                                  explanation
+                                }
+                              />
+                            )}
+                        </>
+                      )}
+
+                    {/* BFS INSIGHTS */}
+                    {selectedAlgorithm === "bfs" && (
+                      <TraversalInsights
+                        step={
+                          bfsSteps[
+                          stepIndex
+                          ]
+                        }
+                        type="bfs"
+                      />
+                    )}
+
+                    {/* DFS INSIGHTS */}
+                    {selectedAlgorithm === "dfs" && (
+                      <TraversalInsights
+                        step={
+                          dfsSteps[
+                          stepIndex
+                          ]
+                        }
+                        type="dfs"
                       />
                     )}
 
                     {/* TIMELINE */}
                     {totalSteps > 0 && (
                       <TimelineSlider
-                        stepIndex={stepIndex}
-                        totalSteps={totalSteps}
+                        stepIndex={
+                          stepIndex
+                        }
+                        totalSteps={
+                          totalSteps
+                        }
                         speed={speed}
-                        setSpeed={setSpeed}
-                        setStepIndex={setStepIndex}
-                        setIsPlaying={setIsPlaying}
+                        setSpeed={
+                          setSpeed
+                        }
+                        setStepIndex={
+                          setStepIndex
+                        }
+                        setIsPlaying={
+                          setIsPlaying
+                        }
                       />
                     )}
-                  </>
-                )}
+                  </div>
 
-              {/* BFS TIMELINE */}
-              {selectedAlgorithm === "bfs" &&
-                totalSteps > 0 && (
-                  <TimelineSlider
-                    stepIndex={stepIndex}
-                    totalSteps={totalSteps}
-                    speed={speed}
-                    setSpeed={setSpeed}
-                    setStepIndex={setStepIndex}
-                    setIsPlaying={setIsPlaying}
+                  {/* COMPARE */}
+                  {compareMode &&
+                    selectedAlgorithm ===
+                    "sliding-window" && (
+                      <ComparePanel />
+                    )}
+
+                  {/* ANALYTICS */}
+                  {selectedAlgorithm ===
+                    "sliding-window" && (
+                      <AnalyticsPanel />
+                    )}
+                </div>
+
+                {/* RIGHT */}
+                <div
+                  className="
+                    sticky
+                    top-6
+                    h-[calc(100vh-48px)]
+                  "
+                >
+
+                  <CodePanel
+                    activeLine={
+                      step?.codeLine
+                    }
+                    selectedAlgorithm={
+                      selectedAlgorithm
+                    }
                   />
-                )}
-            </div>
+                </div>
+              </div>
+            )}
 
-            {/* COMPARE MODE */}
-            {compareMode &&
-              selectedAlgorithm ===
-              "sliding-window" && (
-                <ComparePanel />
-              )}
+          {/* CODE TAB */}
+          {activeTab === "code" && (
 
-            {/* ANALYTICS */}
-            {selectedAlgorithm ===
-              "sliding-window" && (
-                <AnalyticsPanel />
-              )}
-          </div>
+            <CodeWorkspace
+              code={
+                codeSnippets[
+                selectedAlgorithm
+                ] || []
+              }
 
-          {/* RIGHT SIDE */}
-          <div
-            className="
-            sticky
-            top-6
-            h-[calc(100vh-48px)]
-          "
-          >
-            <CodePanel step={step as Step} />
-          </div>
+              activeLine={
+                step?.codeLine || 0
+              }
+
+              algorithmName={
+                algorithmTitle
+              }
+            />
+          )}
+
+          {/* ANALYTICS TAB */}
+          {activeTab ===
+            "analytics" && (
+
+              <AnalyticsWorkspace
+                algorithm={
+                  algorithmTitle
+                }
+
+                totalSteps={
+                  totalSteps
+                }
+
+                currentStep={
+                  stepIndex
+                }
+
+                compareMode={
+                  compareMode
+                }
+              />
+            )}
         </div>
       </div>
     </div>

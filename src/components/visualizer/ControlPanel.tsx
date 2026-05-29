@@ -1,118 +1,246 @@
+"use client";
+
+import { AlgorithmType } from "@/types/algorithms";
+
 interface ControlPanelProps {
-    inputArray: string;
-    setInputArray: (value: string) => void;
-    inputTarget: string;
-    setInputTarget: (value: string) => void;
-    compareMode: boolean;
-    setCompareMode: (value: boolean) => void;
-    runSimulation: () => void;
+
+  selectedAlgorithm: AlgorithmType;
+
+  bfsStartNode: string;
+
+  setBfsStartNode: (
+    value: string
+  ) => void;
+
+  inputArray: string;
+
+  setInputArray: (
+    value: string
+  ) => void;
+
+  inputTarget: string;
+
+  setInputTarget: (
+    value: string
+  ) => void;
+
+  compareMode: boolean;
+
+  setCompareMode: (
+    value: boolean
+  ) => void;
+
+  runSimulation: () => void;
 }
 
 export default function ControlPanel({
-    inputArray,
-    setInputArray,
-    inputTarget,
-    setInputTarget,
-    compareMode,
-    setCompareMode,
-    runSimulation,
+
+  selectedAlgorithm,
+
+  bfsStartNode,
+
+  setBfsStartNode,
+
+  inputArray,
+
+  setInputArray,
+
+  inputTarget,
+
+  setInputTarget,
+
+  compareMode,
+
+  setCompareMode,
+
+  runSimulation,
+
 }: ControlPanelProps) {
-    return (
-        <div
-            className="
+
+  return (
+    <div
+      className="
         rounded-3xl
         border border-white/10
         bg-[#0b1120]
         p-6
-        mb-8
-        shadow-2xl
+        mb-6
       "
-        >
-            <div className="flex flex-wrap items-center gap-4">
+    >
 
-                <div>
-                    <p className="text-sm text-zinc-400 mb-2">
-                        Input Array
-                    </p>
+      <div className="flex flex-wrap gap-4 items-end">
 
-                    <input
-                        value={inputArray}
-                        onChange={(e) =>
-                            setInputArray(e.target.value)
-                        }
-                        placeholder="e.g. 2,3,1,2,4,3"
-                        className="
-              bg-black/40
-              border border-white/10
-              px-4 py-3
-              rounded-xl
-              w-[280px]
-              outline-none
-              focus:border-purple-500
-            "
-                    />
-                </div>
+        {/* ARRAY INPUT */}
+        {(selectedAlgorithm ===
+          "sliding-window"
 
-                <div>
-                    <p className="text-sm text-zinc-400 mb-2">
-                        Target
-                    </p>
+          ||
 
-                    <input
-                        value={inputTarget}
-                        onChange={(e) =>
-                            setInputTarget(e.target.value)
-                        }
-                        placeholder="Target"
-                        className="
-              bg-black/40
-              border border-white/10
-              px-4 py-3
-              rounded-xl
-              w-[120px]
-              outline-none
-              focus:border-pink-500
-            "
-                    />
-                </div>
+          selectedAlgorithm ===
+          "binary-search"
 
-                <div className="flex gap-3 mt-7">
+          ||
 
-                    <button
-                        onClick={runSimulation}
-                        className="
-              bg-gradient-to-r
-              from-purple-600
-              to-pink-500
-              px-6 py-3
-              rounded-xl
-              font-medium
-              hover:scale-105
-              transition
-            "
-                    >
-                        Run Simulation
-                    </button>
+          selectedAlgorithm ===
+          "merge-sort") && (
 
-                    <button
-                        onClick={() =>
-                            setCompareMode(!compareMode)
-                        }
-                        className="
-              bg-blue-600
-              px-6 py-3
-              rounded-xl
-              font-medium
-              hover:bg-blue-500
-              transition
-            "
-                    >
-                        {compareMode
-                            ? "Exit Compare"
-                            : "Compare Mode"}
-                    </button>
-                </div>
+            <div>
+
+              <p className="text-zinc-400 mb-2">
+
+                Input Array
+
+              </p>
+
+              <input
+                type="text"
+
+                value={inputArray}
+
+                onChange={(e) =>
+                  setInputArray(
+                    e.target.value
+                  )
+                }
+
+                placeholder="e.g. 1,3,5,7,9"
+
+                className="
+                  bg-black/30
+                  border border-white/10
+                  rounded-2xl
+                  px-5 py-4
+                  w-[280px]
+                  outline-none
+                "
+              />
             </div>
-        </div>
-    );
+          )}
+
+        {/* TARGET INPUT */}
+        {(selectedAlgorithm ===
+          "sliding-window" ||
+
+          selectedAlgorithm ===
+          "binary-search") && (
+
+            <div>
+
+              <p className="text-zinc-400 mb-2">
+
+                Target
+
+              </p>
+
+              <input
+                type="number"
+
+                value={inputTarget}
+
+                onChange={(e) =>
+                  setInputTarget(
+                    e.target.value
+                  )
+                }
+
+                placeholder="Target"
+
+                className="
+                  bg-black/30
+                  border border-white/10
+                  rounded-2xl
+                  px-5 py-4
+                  w-[160px]
+                  outline-none
+                "
+              />
+            </div>
+          )}
+
+        {/* BFS / DFS START NODE */}
+        {(selectedAlgorithm ===
+          "bfs" ||
+
+          selectedAlgorithm ===
+          "dfs") && (
+
+            <div>
+
+              <p className="text-zinc-400 mb-2">
+
+                Start Node
+
+              </p>
+
+              <input
+                type="text"
+
+                value={bfsStartNode}
+
+                onChange={(e) =>
+                  setBfsStartNode(
+                    e.target.value
+                  )
+                }
+
+                placeholder="A"
+
+                className="
+                  bg-black/30
+                  border border-white/10
+                  rounded-2xl
+                  px-5 py-4
+                  w-[140px]
+                  outline-none
+                "
+              />
+            </div>
+          )}
+
+        {/* RUN BUTTON */}
+        <button
+          onClick={runSimulation}
+
+          className="
+            px-6 py-4
+            rounded-2xl
+            font-semibold
+            bg-gradient-to-r
+            from-purple-600
+            to-pink-500
+            hover:scale-105
+            transition-all
+          "
+        >
+          Run Simulation
+        </button>
+
+        {/* COMPARE MODE */}
+        {selectedAlgorithm ===
+          "sliding-window" && (
+
+            <button
+              onClick={() =>
+                setCompareMode(
+                  !compareMode
+                )
+              }
+
+              className="
+                px-6 py-4
+                rounded-2xl
+                font-semibold
+                bg-blue-600
+                hover:bg-blue-500
+                transition-all
+              "
+            >
+              {compareMode
+                ? "Exit Compare"
+                : "Compare Mode"}
+            </button>
+          )}
+      </div>
+    </div>
+  );
 }
