@@ -63,6 +63,13 @@ const cards = [
     value: "merge-sort",
     icon: "🔀",
   },
+  {
+    title: "Tree Traversal",
+    description:
+      "Inorder DFS Traversal",
+    value: "tree-traversal",
+    icon: "🌳",
+  },
 ];
 
 export default function QuickAccess({

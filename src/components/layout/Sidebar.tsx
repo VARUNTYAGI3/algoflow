@@ -41,6 +41,11 @@ const algorithms = [
     value: "merge-sort",
     icon: "🔀",
   },
+  {
+    label: "Tree Traversal",
+    value: "tree-traversal",
+    icon: "🌳",
+  },
 ];
 
 export default function Sidebar({

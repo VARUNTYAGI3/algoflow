@@ -49,7 +49,13 @@ import {
   BinarySearchStep,
 } from "@/utils/algorithms/binarySearch";
 import MergeSortVisualizer from "@/components/visualizer/MergeSortVisualizer";
+import TreeTraversalVisualizer from "@/components/visualizer/TreeTraversalVisualizer";
 
+import {
+  inorderTraversal,
+  sampleTree,
+  TreeStep,
+} from "@/utils/algorithms/treeTraversal";
 import {
   mergeSortSteps,
   MergeSortStep,
@@ -78,6 +84,10 @@ export default function Visualizer() {
   ] = useState<
     MergeSortStep[]
   >([]);
+  const [
+    treeSteps,
+    setTreeSteps,
+  ] = useState<TreeStep[]>([]);
   const [stepIndex, setStepIndex] =
     useState(0);
 
@@ -229,6 +239,22 @@ export default function Visualizer() {
 
       setIsPlaying(false);
     }
+    if (
+      selectedAlgorithm ===
+      "tree-traversal"
+    ) {
+
+      const result =
+        inorderTraversal(
+          sampleTree
+        );
+
+      setTreeSteps(result);
+
+      setStepIndex(0);
+
+      setIsPlaying(false);
+    }
   };
 
   // CURRENT STEP
@@ -273,7 +299,16 @@ export default function Visualizer() {
       stepIndex
       ];
   }
+  else if (
+    selectedAlgorithm ===
+    "tree-traversal"
+  ) {
 
+    step =
+      treeSteps[
+      stepIndex
+      ];
+  }
   // TOTAL STEPS
   let totalSteps = 0;
 
@@ -312,6 +347,14 @@ export default function Visualizer() {
     totalSteps =
       mergeSortSimulation.length;
   }
+  else if (
+    selectedAlgorithm ===
+    "tree-traversal"
+  ) {
+
+    totalSteps =
+      treeSteps.length;
+  }
 
   // TITLE
   const algorithmTitle =
@@ -333,7 +376,12 @@ export default function Visualizer() {
 
             ? "Binary Search"
 
-            : "Merge Sort";
+            : selectedAlgorithm ===
+              "tree-traversal"
+
+              ? "Tree Traversal"
+
+              : "Merge Sort";
 
   // CODE SNIPPETS
   const codeSnippets:
@@ -378,6 +426,7 @@ export default function Visualizer() {
       "stack.push(neighbor);",
       "}",
       "}",
+
     ],
 
     "binary-search": [
@@ -389,6 +438,15 @@ export default function Visualizer() {
       "if (nums[mid] < target) left = mid + 1;",
       "else right = mid - 1;",
       "}",
+    ],
+    "tree-traversal": [
+
+      "inorder(node.left)",
+
+      "visit(node)",
+
+      "inorder(node.right)",
+
     ],
   };
 
@@ -681,6 +739,18 @@ export default function Visualizer() {
                         <MergeSortVisualizer
                           step={
                             mergeSortSimulation[
+                            stepIndex
+                            ]
+                          }
+                        />
+                      )}
+
+                    {selectedAlgorithm ===
+                      "tree-traversal" && (
+
+                        <TreeTraversalVisualizer
+                          step={
+                            treeSteps[
                             stepIndex
                             ]
                           }

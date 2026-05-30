@@ -3,4 +3,5 @@ export type AlgorithmType =
   | "bfs"
   | "dfs"
   | "binary-search"
-  | "merge-sort";
+  | "merge-sort"
+  | "tree-traversal";
