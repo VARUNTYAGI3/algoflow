@@ -71,7 +71,7 @@ export default function DashboardHeader() {
             </p>
 
             <h3 className="text-2xl font-bold mt-1">
-              3+
+              6+
             </h3>
           </div>
 

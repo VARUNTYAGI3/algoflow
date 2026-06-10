@@ -3,7 +3,7 @@
 import { AlgorithmType } from "@/types/algorithms";
 
 interface CodePanelProps {
-
+  code: string[];
   activeLine?: number;
 
   selectedAlgorithm: AlgorithmType;
@@ -70,9 +70,16 @@ const codeSnippets:
     "mergeSort(mid + 1, right)",
     "merge(left, mid, right)",
   ],
+  "tree-traversal": [
+    "inorder(node.left)",
+    "visit(node)",
+    "inorder(node.right)",
+  ],
 };
 
 export default function CodePanel({
+
+  code,
 
   activeLine,
 
@@ -80,10 +87,6 @@ export default function CodePanel({
 
 }: CodePanelProps) {
 
-  const code =
-    codeSnippets[
-    selectedAlgorithm
-    ] || [];
 
   return (
     <div

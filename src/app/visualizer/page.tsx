@@ -50,9 +50,11 @@ import {
 } from "@/utils/algorithms/binarySearch";
 import MergeSortVisualizer from "@/components/visualizer/MergeSortVisualizer";
 import TreeTraversalVisualizer from "@/components/visualizer/TreeTraversalVisualizer";
-
 import {
   inorderTraversal,
+  preorderTraversal,
+  postorderTraversal,
+  levelOrderTraversal,
   sampleTree,
   TreeStep,
 } from "@/utils/algorithms/treeTraversal";
@@ -88,6 +90,16 @@ export default function Visualizer() {
     treeSteps,
     setTreeSteps,
   ] = useState<TreeStep[]>([]);
+  const [
+    traversalType,
+    setTraversalType,
+  ] = useState<
+    "inorder" |
+    "preorder" |
+    "postorder" |
+    "levelorder"
+  >("inorder");
+
   const [stepIndex, setStepIndex] =
     useState(0);
 
@@ -244,10 +256,45 @@ export default function Visualizer() {
       "tree-traversal"
     ) {
 
-      const result =
-        inorderTraversal(
-          sampleTree
-        );
+      let result: TreeStep[] = [];
+
+      if (
+        traversalType ===
+        "inorder"
+      ) {
+
+        result =
+          inorderTraversal(
+            sampleTree
+          );
+
+      } else if (
+        traversalType ===
+        "preorder"
+      ) {
+
+        result =
+          preorderTraversal(
+            sampleTree
+          );
+
+      } else if (
+        traversalType ===
+        "postorder"
+      ) {
+
+        result =
+          postorderTraversal(
+            sampleTree
+          );
+
+      } else {
+
+        result =
+          levelOrderTraversal(
+            sampleTree
+          );
+      }
 
       setTreeSteps(result);
 
@@ -439,14 +486,17 @@ export default function Visualizer() {
       "else right = mid - 1;",
       "}",
     ],
+    "merge-sort": [
+      "mergeSort(left, right)",
+      "mid = (left + right) / 2",
+      "mergeSort(left, mid)",
+      "mergeSort(mid + 1, right)",
+      "merge(left, mid, right)",
+    ],
     "tree-traversal": [
-
       "inorder(node.left)",
-
       "visit(node)",
-
       "inorder(node.right)",
-
     ],
   };
 
@@ -498,6 +548,46 @@ export default function Visualizer() {
     totalSteps,
   ]);
 
+  const currentCode =
+    selectedAlgorithm ===
+      "tree-traversal"
+
+      ? traversalType ===
+        "preorder"
+
+        ? [
+          "visit(node)",
+          "preorder(node.left)",
+          "preorder(node.right)",
+        ]
+
+        : traversalType ===
+          "postorder"
+
+          ? [
+            "postorder(node.left)",
+            "postorder(node.right)",
+            "visit(node)",
+          ]
+
+          : traversalType ===
+            "levelorder"
+
+            ? [
+              "queue.push(root)",
+              "while(queue.length)",
+              "visit(node)",
+            ]
+
+            : [
+              "inorder(node.left)",
+              "visit(node)",
+              "inorder(node.right)",
+            ]
+
+      : codeSnippets[
+      selectedAlgorithm
+      ] || [];
   return (
     <div className="min-h-screen bg-black text-white flex">
 
@@ -587,7 +677,60 @@ export default function Visualizer() {
               runSimulation
             }
           />
+          {selectedAlgorithm ===
+            "tree-traversal" && (
 
+              <div className="mb-6">
+
+                <label
+                  className="
+        block
+        mb-2
+        text-sm
+        text-zinc-400
+      "
+                >
+                  Traversal Type
+                </label>
+
+                <select
+
+                  value={traversalType}
+
+                  onChange={(e) =>
+                    setTraversalType(
+                      e.target.value as any
+                    )
+                  }
+
+                  className="
+        bg-zinc-900
+        border border-white/10
+        rounded-xl
+        px-4 py-3
+        text-white
+      "
+                >
+                  <option value="inorder">
+                    Inorder
+                  </option>
+
+                  <option value="preorder">
+                    Preorder
+                  </option>
+
+                  <option value="postorder">
+                    Postorder
+                  </option>
+
+                  <option value="levelorder">
+                    Level Order
+                  </option>
+
+                </select>
+
+              </div>
+            )}
           {/* VISUALIZATION */}
           {activeTab ===
             "visualization" && (
@@ -749,11 +892,8 @@ export default function Visualizer() {
                       "tree-traversal" && (
 
                         <TreeTraversalVisualizer
-                          step={
-                            treeSteps[
-                            stepIndex
-                            ]
-                          }
+                          step={treeSteps[stepIndex]}
+                          traversalType={traversalType}
                         />
                       )}
 
@@ -789,6 +929,7 @@ export default function Visualizer() {
           relative
         "
                                 >
+
 
                                   {/* POINTER LABELS */}
                                   <div className="h-10 flex flex-col items-center justify-end">
@@ -983,6 +1124,7 @@ export default function Visualizer() {
                 >
 
                   <CodePanel
+                    code={currentCode}
                     activeLine={
                       step?.codeLine
                     }
