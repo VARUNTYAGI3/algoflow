@@ -305,8 +305,7 @@ export default function Visualizer() {
   };
 
   // CURRENT STEP
-  let step;
-
+let step: any;
   if (
     selectedAlgorithm ===
     "sliding-window"
